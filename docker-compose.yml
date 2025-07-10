@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  # The MQTT Broker service
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      # Exposes the default MQTT port 1883 to host machine
+      - "1883:1883"
+      # Exposes the WebSocket port 9001 maybe for webUI
+      - "9001:9001"
+    volumes:
+      # simple config file to allow anonymous connections
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      # persist the data and logs of the broker
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
