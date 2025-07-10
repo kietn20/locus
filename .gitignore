@@ -1,0 +1,13 @@
+# Go binaries
+locus-*
+*.exe
+
+# OS-specific
+.DS_Store
+
+# IDE / Editor folders
+.vscode/
+.idea/
+
+env
+.env
