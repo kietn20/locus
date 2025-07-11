@@ -10,7 +10,7 @@ import (
 	"time"
 
 	"github.com/eclipse/paho.mqtt.golang"
-	"github.com/kiet20/locus/internal/vehicle"
+	"github.com/kietn20/locus/internal/vehicle"
 )
 
 func main() {
@@ -34,9 +34,9 @@ func main() {
 		select {
 		case <-ticker.C:
 			locationData := vehicle.LocationData{
-				vehicleID: vehicleID,
+				VehicleID: vehicleId,
 				Latitude:  34.0522 + (rand.Float64()-0.5)*0.1, // Simulate movement
-				Longitude: -118.2437 + (rand.float64()-0.5)*0.1,
+				Longitude: -118.2437 + (rand.Float64()-0.5)*0.1,
 			}
 
 			payload, err := locationData.ToJSON()
