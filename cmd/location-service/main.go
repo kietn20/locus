@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"log"
 	"os"
@@ -8,13 +9,19 @@ import (
 	"syscall"
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
+	"github.com/jackc/pgx/v5"
+	"github.com/kietn20/locus/internal/db"
 	"github.com/kietn20/locus/internal/vehicle"
+	"github.com/kietn20/locus/internal/vehicle/db"
 )
 
-var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+type LocationService struct {
+	DBConn *pgx.Conn
+}
+
+func (s *LocationService) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
 	var locationData vehicle.LocationData
 
-	// Unmarshal the incoming message payload into our struct
 	if err := locationData.FromJSON(msg.Payload()); err != nil {
 		log.Printf("Error unmarshalling location data: %v", err)
 		return
@@ -22,13 +29,49 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 
 	fmt.Printf("Received location for Vehicle '%s': Lat=%.4f, Lon=%.4f\n",
 		locationData.VehicleID, locationData.Latitude, locationData.Longitude)
+
+	insertSQL := `INSERT INTO vehicle_locations (vehicle_id, location) VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326))`
+
+	_, err := s.DBConn.Exec(context.Background(), insertSQL, locationData.VehicleID, locationData.Longitude, locationData.Latitude)
+	if err != nil {
+		log.Printf("Failed to insert location data: %v\n", err)
+	}
 }
 
+// var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Message) {
+// 	var locationData vehicle.LocationData
+
+// 	// Unmarshal the incoming message payload into our struct
+// 	if err := locationData.FromJSON(msg.Payload()); err != nil {
+// 		log.Printf("Error unmarshalling location data: %v", err)
+// 		return
+// 	}
+
+// 	fmt.Printf("Received location for Vehicle '%s': Lat=%.4f, Lon=%.4f\n",
+// 		locationData.VehicleID, locationData.Latitude, locationData.Longitude)
+// }
+
 func main() {
+
+	if err := godotenv.Load(); err != nil {
+		log.Println("No .env file found")
+	}
+
+	conn := db.Connect()
+	defer conn.Close(context.Background())
+
+	db.Migrate(conn)
+
+	service := &LocationService{
+		DBConn: conn,
+	}
+
+
+
 	// --- MQTT Client Setup ---
 	opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883")
 	opts.SetClientID("location-service")
-	opts.SetDefaultPublishHandler(messagePubHandler)
+	opts.SetDefaultPublishHandler(service.messagePubHandler)
 
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
