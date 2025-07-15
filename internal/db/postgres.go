@@ -57,7 +57,7 @@ func Migrate(conn *pgx.Conn) {
 	`
 
 	_, err := conn.Exec(context.Background(), createTableSQL)
-	if err != nil {
+	if err !=nil {
 		log.Fatalf("Table creation failed: %v\n", err)
 	}
 
