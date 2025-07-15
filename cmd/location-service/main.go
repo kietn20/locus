@@ -10,9 +10,9 @@ import (
 
 	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/jackc/pgx/v5"
+	"github.com/joho/godotenv"
 	"github.com/kietn20/locus/internal/db"
 	"github.com/kietn20/locus/internal/vehicle"
-	"github.com/kietn20/locus/internal/vehicle/db"
 )
 
 type LocationService struct {
