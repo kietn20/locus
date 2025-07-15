@@ -9,7 +9,9 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// Connect initializes and returns a new database connection.
 func Connect() *pgx.Conn {
+	// Construct the Database Source Name (DSN) string
 	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
@@ -23,6 +25,7 @@ func Connect() *pgx.Conn {
 		log.Fatalf("Unable to connect to database: %v\n", err)
 	}
 
+	// Pinging the database to verify the connection to ensure it's alive
 	err = conn.Ping(context.Background())
 	if err != nil {
 		log.Fatalf("Database ping failed: %v\n", err)
@@ -32,7 +35,10 @@ func Connect() *pgx.Conn {
 	return conn
 }
 
+
+
 func Migrate(conn *pgx.Conn) {
+	// 'location' column of type 'GEOMETRY' from PostGIS extension
 	createTableSQL := `
 	CREATE TABLE IF NOT EXISTS vehicle_locations (
 		id SERIAL PRIMARY KEY,
