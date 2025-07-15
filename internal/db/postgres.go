@@ -12,7 +12,7 @@ import (
 // Connect initializes and returns a new database connection.
 func Connect() *pgx.Conn {
 	// Construct the Database Source Name (DSN) string
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
@@ -35,8 +35,6 @@ func Connect() *pgx.Conn {
 	return conn
 }
 
-
-
 func Migrate(conn *pgx.Conn) {
 	// 'location' column of type 'GEOMETRY' from PostGIS extension
 	createTableSQL := `
@@ -57,7 +55,7 @@ func Migrate(conn *pgx.Conn) {
 	`
 
 	_, err := conn.Exec(context.Background(), createTableSQL)
-	if err !=nil {
+	if err != nil {
 		log.Fatalf("Table creation failed: %v\n", err)
 	}
 
