@@ -19,6 +19,7 @@ type LocationService struct {
 	DBConn *pgx.Conn
 }
 
+// Modify the handler to be a method of our LocationService struct and gives it access to the database connection
 func (s *LocationService) messagePubHandler(client mqtt.Client, msg mqtt.Message) {
 	var locationData vehicle.LocationData
 
@@ -30,6 +31,10 @@ func (s *LocationService) messagePubHandler(client mqtt.Client, msg mqtt.Message
 	fmt.Printf("Received location for Vehicle '%s': Lat=%.4f, Lon=%.4f\n",
 		locationData.VehicleID, locationData.Latitude, locationData.Longitude)
 
+
+	// --- Save to Database ---
+	// The ST_MakePoint function is a PostGIS function to create a geometry point.
+	// 4326 is the standard spatial reference ID for GPS coordinates (WGS 84).
 	insertSQL := `INSERT INTO vehicle_locations (vehicle_id, location) VALUES ($1, ST_SetSRID(ST_MakePoint($2, $3), 4326))`
 
 	_, err := s.DBConn.Exec(context.Background(), insertSQL, locationData.VehicleID, locationData.Longitude, locationData.Latitude)
@@ -58,8 +63,9 @@ func main() {
 	}
 
 	conn := db.Connect()
-	defer conn.Close(context.Background())
+	defer conn.Close(context.Background()) // Ensure the connection is closed on exit.
 
+	// Run migrations
 	db.Migrate(conn)
 
 	service := &LocationService{
