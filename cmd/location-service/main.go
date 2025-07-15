@@ -59,7 +59,7 @@ func (s *LocationService) messagePubHandler(client mqtt.Client, msg mqtt.Message
 func main() {
 
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
+		log.Println("No .env file found, relying on external environment variables")
 	}
 
 	conn := db.Connect()
