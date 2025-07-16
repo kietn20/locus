@@ -16,8 +16,8 @@ import (
 )
 
 type GeofenceService struct {
-	DBConn *pgx.Conn
-	MQTTClient mqtt.Client
+	DBConn        *pgx.Conn
+	MQTTClient    mqtt.Client
 	vehicleStates map[string]string
 }
 
@@ -31,7 +31,7 @@ func main() {
 	defer conn.Close(context.Background())
 
 	service := &GeofenceService{
-		DBConn: conn,
+		DBConn:        conn,
 		vehicleStates: make(map[string]string),
 	}
 
@@ -43,12 +43,13 @@ func main() {
 	}
 	fmt.Println("Geofence service connected to MQTT broker.")
 
+	service.MQTTClient = mqttClient
 
 	// opts.SetDefaultPublishHandler(service.messageHandler)
 
-	topic := "locus/hehicles/+/location"
-	if token := mqttClient.Subscribe(topic, 1, nil); token.Wait() && token.Error() != nil {
-		log.Fatalf("Failed to subscribe:  %v", token.Error())
+	topic := "locus/vehicles/+/location"
+	if token := mqttClient.Subscribe(topic, 1, service.messageHandler); token.Wait() && token.Error() != nil {
+		log.Fatalf("Failed to subscribe: %v", token.Error())
 	}
 	fmt.Printf("Subscribed to topic: %s\n", topic)
 
@@ -63,31 +64,31 @@ func main() {
 }
 
 // This function performs the core geospatial query.
-	func (s *GeofenceService) checkGeofence(loc vehicle.LocationData) (string, error) {
-		var geofenceName string
+func (s *GeofenceService) checkGeofence(loc vehicle.LocationData) (string, error) {
+	var geofenceName string
 
-		// ST_Contains checks if the first geometry contains the second.
-		// We check if any geofence's 'area' contains the vehicle's 'location' point.
-		// We return the name of the first one we find. LIMIT 1 makes it efficient.
-		sql := `
-			SELECT name FROM geofences 
-			WHERE ST_Contains(area, ST_SetSRID(ST_MakePoint($1, $2), 4326))
-			LIMIT 1
-		`
-		// Note: We use longitude first, then latitude for PostGIS point creation.
-		err := s.DBConn.QueryRow(context.Background(), sql, loc.Longitude, loc.Latitude).Scan(&geofenceName)
+	// ST_Contains checks if the first geometry contains the second.
+	// We check if any geofence's 'area' contains the vehicle's 'location' point.
+	// We return the name of the first one we find. LIMIT 1 makes it efficient.
+	sql := `
+		SELECT name FROM geofences 
+		WHERE ST_Contains(area, ST_SetSRID(ST_MakePoint($1, $2), 4326))
+		LIMIT 1
+	`
+	// Note: We use longitude first, then latitude for PostGIS point creation.
+	err := s.DBConn.QueryRow(context.Background(), sql, loc.Longitude, loc.Latitude).Scan(&geofenceName)
 
-		if err == pgx.ErrNoRows {
-			// This is not a system error. It's the expected result when the point is outside all geofences.
-			return "", nil 
-		}
-		if err != nil {
-			// This is a real database error.
-			return "", err
-		}
-
-		return geofenceName, nil
+	if err == pgx.ErrNoRows {
+		// This is not a system error. It's the expected result when the point is outside all geofences.
+		return "", nil
 	}
+	if err != nil {
+		// This is a real database error.
+		return "", err
+	}
+
+	return geofenceName, nil
+}
 
 // messageHandler is the callback for processing vehicle location updates.
 func (s *GeofenceService) messageHandler(client mqtt.Client, msg mqtt.Message) {
@@ -122,7 +123,7 @@ func (s *GeofenceService) messageHandler(client mqtt.Client, msg mqtt.Message) {
 			fmt.Printf("EVENT: Vehicle %s entered geofence %s\n", loc.VehicleID, currentFence)
 			s.MQTTClient.Publish("locus/geofence/events", 1, false, eventPayload)
 		}
-		
+
 		// Update the state map with the new location.
 		s.vehicleStates[loc.VehicleID] = currentFence
 	}
