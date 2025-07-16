@@ -1,0 +1,16 @@
+{
+  "type": "Feature",
+  "properties": { "name": "downtown-la" },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [-118.25, 34.04],
+        [-118.23, 34.04],
+        [-118.23, 34.06],
+        [-118.25, 34.06],
+        [-118.25, 34.04]
+      ]
+    ]
+  }
+}
