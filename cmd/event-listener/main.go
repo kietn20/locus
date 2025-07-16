@@ -17,7 +17,6 @@ var messagePubHandler mqtt.MessageHandler = func(client mqtt.Client, msg mqtt.Me
 func main() {
 	opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883")
 	opts.SetClientID("event-listener-client") // A unique ID for this client
-	opts.SetDefaultPublishHandler(messagePubHandler)
 
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
@@ -28,7 +27,7 @@ func main() {
 	// This is the topic our geofence-service publishes events to.
 	topic := "locus/geofence/events"
 	// We use QoS 1 to ensure we get the messages even if there's a temporary network blip.
-	if token := client.Subscribe(topic, 1, nil); token.Wait() && token.Error() != nil {
+	if token := client.Subscribe(topic, 1, messagePubHandler); token.Wait() && token.Error() != nil {
 		log.Fatalf("Failed to subscribe: %v", token.Error())
 	}
 	fmt.Printf("Subscribed to topic: %s\n", topic)
