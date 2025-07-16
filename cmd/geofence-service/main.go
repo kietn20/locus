@@ -92,6 +92,8 @@ func (s *GeofenceService) checkGeofence(loc vehicle.LocationData) (string, error
 
 // messageHandler is the callback for processing vehicle location updates.
 func (s *GeofenceService) messageHandler(client mqtt.Client, msg mqtt.Message) {
+	log.Printf("Processing location for vehicle from topic: %s", msg.Topic())
+
 	var loc vehicle.LocationData
 	if err := loc.FromJSON(msg.Payload()); err != nil {
 		log.Printf("Error unmarshalling location data: %v", err)
