@@ -35,6 +35,7 @@ func Connect() *pgx.Conn {
 	return conn
 }
 
+// Migrate creates the necessary tables and indexes in the database.
 func Migrate(conn *pgx.Conn) {
 	// 'location' column of type 'GEOMETRY' from PostGIS extension
 	createTableSQL := `
@@ -58,6 +59,26 @@ func Migrate(conn *pgx.Conn) {
 	if err != nil {
 		log.Fatalf("Table creation failed: %v\n", err)
 	}
+
+
+	// Create the geofences table with a spatial index for fast "contains" checks.
+	// This table will store geofences defined by polygons.
+	createGeofencesTableSQL := `
+	CREATE TABLE IF NOT EXISTS geofences (
+		id SERIAL PRIMARY KEY,
+		name VARCHAR(255) NOT NULL UNIQUE,
+		area GEOMETRY(Polygon, 4326) NOT NULL,
+		created_at TIMESTAMPTZ DEFAULT NOW() NOT NULL
+	);
+	-- Add a spatial index for fast "contains" checks later.
+	CREATE INDEX IF NOT EXISTS geofences_area_idx ON geofences USING GIST (area);
+	`
+	_, err = conn.Exec(context.Background(), createGeofencesTableSQL)
+	if err != nil {
+		log.Fatalf("Geofences table creation failed: %v\n", err)
+	}
+
+
 
 	fmt.Println("Database migration completed successfully.")
 }
