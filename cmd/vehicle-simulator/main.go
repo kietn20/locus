@@ -41,8 +41,8 @@ func main() {
 			// Create a new location data point with some random variation
 			locationData := vehicle.LocationData{
 				VehicleID: vehicleID,
-				Latitude:  34.0522 + (rand.Float64() - 0.5) * 0.1, // Simulate movement
-				Longitude: -118.2437 + (rand.Float64() - 0.5) * 0.1,
+				Latitude:  34.0522 + (rand.Float64() - 0.5) * 0.5, // Simulate movement
+				Longitude: -118.2437 + (rand.Float64() - 0.5) * 0.5,
 			}
 
 			// Marshal the struct into JSON using our helper method.
