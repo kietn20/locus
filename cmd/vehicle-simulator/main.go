@@ -9,13 +9,22 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/eclipse/paho.mqtt.golang"
+	mqtt "github.com/eclipse/paho.mqtt.golang"
 	"github.com/kietn20/locus/internal/vehicle"
 )
 
 func main() {
 	// --- MQTT Client Setup ---
-	opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883")
+	mqttBrokerHost := os.Getenv("MQTT_BROKER_HOST")
+	if mqttBrokerHost == "" {
+		mqttBrokerHost = "localhost" // Fallback
+	}
+	mqttBrokerAddress := fmt.Sprintf("tcp://%s:1883", mqttBrokerHost)
+	log.Printf("Connecting to MQTT broker at %s", mqttBrokerAddress)
+
+	opts := mqtt.NewClientOptions().AddBroker(mqttBrokerAddress)
+	// opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883")
+	
 	// using the current timestamp to create a unique enough ID
 	opts.SetClientID(fmt.Sprintf("vehicle-simulator-%d", time.Now().UnixNano()))
 
@@ -41,8 +50,8 @@ func main() {
 			// Create a new location data point with some random variation
 			locationData := vehicle.LocationData{
 				VehicleID: vehicleID,
-				Latitude:  34.0522 + (rand.Float64() - 0.5) * 0.05, // Simulate movement
-				Longitude: -118.2437 + (rand.Float64() - 0.5) * 0.05,
+				Latitude:  34.0522 + (rand.Float64()-0.5)*0.05, // Simulate movement
+				Longitude: -118.2437 + (rand.Float64()-0.5)*0.05,
 			}
 
 			// Marshal the struct into JSON using our helper method.
