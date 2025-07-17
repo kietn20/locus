@@ -1,6 +1,22 @@
 # version: '3.8'
 
 services:
+  api-service:
+    container_name: api-service
+    # build this image from the Dockerfile
+    build:
+      context: .
+      dockerfile: ./cmd/api-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    # it ensures this service starts AFTER the database is healthy.
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file:
+      - ./.env
+
   # The MQTT Broker service
   mosquitto:
     image: eclipse-mosquitto:2.0
