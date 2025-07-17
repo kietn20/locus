@@ -59,6 +59,18 @@ services:
       - DB_NAME=${DB_NAME}
       - MQTT_BROKER_HOST=mosquitto
 
+  vehicle-simulator:
+    container_name: vehicle-simulator
+    build:
+      context: .
+      dockerfile: ./cmd/vehicle-simulator/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_started
+    environment:
+      - MQTT_BROKER_HOST=mosquitto
+      
   # The MQTT Broker service
   mosquitto:
     image: eclipse-mosquitto:2.0
