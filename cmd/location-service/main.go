@@ -75,7 +75,17 @@ func main() {
 
 
 	// --- MQTT Client Setup ---
-	opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883")
+	mqttBrokerHost := os.Getenv("MQTT_BROKER_HOST")
+	if mqttBrokerHost == "" {
+		mqttBrokerHost = "localhost" // Fallback for local `go run`
+	}
+
+	mqttBrokerAddress := fmt.Sprintf("tcp://%s:1883", mqttBrokerHost)
+	log.Printf("Connecting to MQTT broker at %s", mqttBrokerAddress)
+
+
+	opts := mqtt.NewClientOptions().AddBroker(mqttBrokerAddress).SetClientID("location-service")
+	// opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883")
 	opts.SetClientID("location-service")
 	opts.SetDefaultPublishHandler(service.messagePubHandler)
 
