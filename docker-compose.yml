@@ -40,6 +40,24 @@ services:
       - DB_NAME=${DB_NAME}
       - MQTT_BROKER_HOST=mosquitto
 
+  geofence-service:
+    container_name: geofence-service
+    build:
+      context: .
+      dockerfile: ./cmd/geofence-service/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - MQTT_BROKER_HOST=mosquitto
 
   # The MQTT Broker service
   mosquitto:
