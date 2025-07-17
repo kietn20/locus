@@ -1,7 +1,7 @@
 # --- Stage 1: The Builder ---
 # start with the official Go image, which contains the Go compiler.
 # pinning it to a specific version for reproducibility.
-FROM golang:1.21-alpine AS builder
+FROM golang:1.22-alpine AS builder
 
 # Set the working directory inside the container.
 WORKDIR /app
@@ -9,7 +9,7 @@ WORKDIR /app
 # Copy the Go module files. This is done as a separate layer to leverage Docker's
 # layer caching. If go.mod and go.sum don't change, Docker won't re-download dependencies.
 COPY ../../go.mod ../../go.sum ./
-RUN go mod download
+RUN go mod download && go mod tidy
 
 # Copy the rest of the source code.
 # The ../../ is because this Dockerfile is two levels deep from the project root.
