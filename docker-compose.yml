@@ -21,6 +21,26 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - DB_NAME=${DB_NAME}
 
+  location-service:
+    container_name: location-service
+    build:
+      context: .
+      dockerfile: ./cmd/location-service/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - MQTT_BROKER_HOST=mosquitto
+
+
   # The MQTT Broker service
   mosquitto:
     image: eclipse-mosquitto:2.0
