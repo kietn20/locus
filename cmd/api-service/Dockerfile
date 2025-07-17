@@ -1,7 +1,7 @@
 # --- Stage 1: The Builder ---
 # start with the official Go image, which contains the Go compiler.
 # pinning it to a specific version for reproducibility.
-FROM golang:1.22-alpine AS builder
+FROM golang:1.24-bookworm AS builder
 
 # Set the working directory inside the container.
 WORKDIR /app
@@ -25,7 +25,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-w -s" -o /api-serv
 
 # --- Stage 2: The Final Image ---
 # start from a "scratch" image, which is completely empty. It's the most minimal possible.
-FROM scratch
+FROM alpine:latest
 
 # Set the working directory.
 WORKDIR /
