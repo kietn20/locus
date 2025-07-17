@@ -9,7 +9,7 @@ WORKDIR /app
 # Copy the Go module files. This is done as a separate layer to leverage Docker's
 # layer caching. If go.mod and go.sum don't change, Docker won't re-download dependencies.
 COPY ../../go.mod ../../go.sum ./
-RUN go mod download && go mod tidy
+RUN go mod download
 
 # Copy the rest of the source code.
 # The ../../ is because this Dockerfile is two levels deep from the project root.
