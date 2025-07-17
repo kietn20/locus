@@ -36,7 +36,16 @@ func main() {
 	}
 
 	// --- Connect to MQTT ---
-	opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883").SetClientID("geofence-service")
+	mqttBrokerHost := os.Getenv("MQTT_BROKER_HOST")
+	if mqttBrokerHost == "" {
+		mqttBrokerHost = "localhost" // Fallback for local `go run`
+	}
+	mqttBrokerAddress := fmt.Sprintf("tcp://%s:1883", mqttBrokerHost)
+	log.Printf("Connecting to MQTT broker at %s", mqttBrokerAddress)
+
+	opts := mqtt.NewClientOptions().AddBroker(mqttBrokerAddress).SetClientID("geofence-service")
+	// opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883").SetClientID("geofence-service")
+	
 	mqttClient := mqtt.NewClient(opts)
 	if token := mqttClient.Connect(); token.Wait() && token.Error() != nil {
 		log.Fatalf("Failed to connect to MQTT broker: %v", token.Error())
