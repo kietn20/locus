@@ -1,6 +1,7 @@
 module github.com/kietn20/locus
 
-go 1.24.4
+// go 1.24.4
+go 1.22.0
 
 require (
 	github.com/eclipse/paho.mqtt.golang v1.5.0 // indirect
