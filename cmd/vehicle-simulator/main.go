@@ -17,14 +17,21 @@ func main() {
 	// --- MQTT Client Setup ---
 	mqttBrokerHost := os.Getenv("MQTT_BROKER_HOST")
 	if mqttBrokerHost == "" {
-		mqttBrokerHost = "localhost" // Fallback
+		mqttBrokerHost = "localhost" // Default for local dev
 	}
-	mqttBrokerAddress := fmt.Sprintf("tcp://%s:1883", mqttBrokerHost)
+
+	// Default MQTT port is 1883
+	mqttBrokerPort := os.Getenv("MQTT_BROKER_PORT")
+	if mqttBrokerPort == "" {
+		mqttBrokerPort = "1883"
+	}
+
+	mqttBrokerAddress := fmt.Sprintf("tcp://%s:%s", mqttBrokerHost, mqttBrokerPort)
 	log.Printf("Connecting to MQTT broker at %s", mqttBrokerAddress)
 
 	opts := mqtt.NewClientOptions().AddBroker(mqttBrokerAddress)
 	// opts := mqtt.NewClientOptions().AddBroker("tcp://localhost:1883")
-	
+
 	// using the current timestamp to create a unique enough ID
 	opts.SetClientID(fmt.Sprintf("vehicle-simulator-%d", time.Now().UnixNano()))
 
