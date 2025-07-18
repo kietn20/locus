@@ -1,0 +1,99 @@
+# version: '3.8'
+
+services:
+  api-service:
+    container_name: api-service
+    # build this image from the Dockerfile
+    build:
+      context: .
+      dockerfile: ./cmd/api-service/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    # it ensures this service starts AFTER the database is healthy.
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+
+  location-service:
+    container_name: location-service
+    build:
+      context: .
+      dockerfile: ./cmd/location-service/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - MQTT_BROKER_HOST=mosquitto
+
+  geofence-service:
+    container_name: geofence-service
+    build:
+      context: .
+      dockerfile: ./cmd/geofence-service/Dockerfile
+    restart: unless-stopped
+    depends_on:
+      mosquitto:
+        condition: service_started
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - MQTT_BROKER_HOST=mosquitto
+
+  # The MQTT Broker service
+  mosquitto:
+    image: eclipse-mosquitto:2.0
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      # Exposes the default MQTT port 1883 to host machine
+      - "1883:1883"
+      # Exposes the WebSocket port 9001 maybe for webUI
+      - "9001:9001"
+    volumes:
+      # simple config file to allow anonymous connections
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      # persist the data and logs of the broker
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+  
+  postgres:
+    # comes with PostgreSQL and the PostGIS extension pre-installed
+    image: postgis/postgis:15-3.3
+    container_name: postgres
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:
