@@ -94,3 +94,9 @@ The application is deployed on an EC2 instance and managed via Docker Compose.
       }
     }
     ```
+
+### List Geofences
+
+*   **Endpoint:** `GET /api/v1/geofences`
+*   **Method:** `GET`
+*   **Returns:** A JSON array of all geofences in the database.
