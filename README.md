@@ -8,3 +8,23 @@ Project Locus is a complete, event-driven backend system designed to track a fle
 ## Architecture Diagram
 
 The system consists of several independent Go services that communicate asynchronously via an MQTT message broker and a shared PostgreSQL database.
+
+
+
+
+
+
+---
+
+## Tech Stack
+
+*   **Language:** Go
+*   **Messaging:** MQTT (Eclipse Mosquitto Broker)
+*   **Database:** PostgreSQL with the PostGIS extension for geospatial queries.
+*   **API:** RESTful API built with the `chi` router.
+*   **Infrastructure:** Docker, Docker Compose
+*   **Cloud Provider:** Amazon Web Services (AWS)
+    *   **Compute:** EC2 (`t2.micro`)
+    *   **Networking:** VPC, Security Groups
+
+---
