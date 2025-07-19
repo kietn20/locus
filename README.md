@@ -39,3 +39,20 @@ The system consists of several independent Go services that communicate asynchro
 *   **Cloud Deployed:** The entire backend stack is containerized and deployed to an AWS EC2 instance.
 
 ---
+
+## How to Run
+
+### Local Development
+
+1.  **Prerequisites:** Go, Docker, Docker Compose installed.
+2.  Clone the repository: `git clone ...`
+3.  Create a `.env` file from the project root (see `.env.example` if available).
+4.  Start the infrastructure: `docker-compose up -d`
+5.  Run the services in separate terminals:
+    ```bash
+    go run ./cmd/api-service/main.go
+    go run ./cmd/location-service/main.go
+    go run ./cmd/geofence-service/main.go
+    ```
+6.  Create a geofence (see API Usage section).
+7.  Run the simulator: `go run ./cmd/vehicle-simulator/main.go`
