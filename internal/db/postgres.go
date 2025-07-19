@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 )
 
 // Connect initializes and returns a new database connection.
 func Connect() *pgx.Conn {
-	// Construct the Database Source Name (DSN) string
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable",
+	dsn := fmt.Sprintf("postgres://%s:%s@%s:%s/%s",
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWORD"),
 		os.Getenv("DB_HOST"),
@@ -20,19 +20,28 @@ func Connect() *pgx.Conn {
 		os.Getenv("DB_NAME"),
 	)
 
-	conn, err := pgx.Connect(context.Background(), dsn)
-	if err != nil {
-		log.Fatalf("Unable to connect to database: %v\n", err)
+	var conn *pgx.Conn
+	var err error
+
+	// Retry logic
+	for i := 0; i < 5; i++ {
+		conn, err = pgx.Connect(context.Background(), dsn)
+		if err == nil {
+			// Success! Check if the connection is alive.
+			err = conn.Ping(context.Background())
+			if err == nil {
+				log.Println("Successfully connected to database.")
+				return conn
+			}
+		}
+
+		log.Printf("Failed to connect to database (attempt %d/5): %v", i+1, err)
+		time.Sleep(2 * time.Second) //waiting for 2 seconds before retrying
 	}
 
-	// Pinging the database to verify the connection to ensure it's alive
-	err = conn.Ping(context.Background())
-	if err != nil {
-		log.Fatalf("Database ping failed: %v\n", err)
-	}
-
-	fmt.Println("Successfully connected to database.")
-	return conn
+	// if we exit the loop, it means all retries failed
+	log.Fatalf("Unable to connect to database after multiple retries: %v", err)
+	return nil
 }
 
 // Migrate creates the necessary tables and indexes in the database.
