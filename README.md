@@ -68,3 +68,29 @@ The application is deployed on an EC2 instance and managed via Docker Compose.
 6.  To test, run the vehicle simulator from a local machine with the `MQTT_BROKER_HOST` environment variable set to the EC2 instance's public IP.
 
 ---
+
+## API Usage
+
+### Create a Geofence
+
+*   **Endpoint:** `POST /api/v1/geofences`
+*   **Method:** `POST`
+*   **Body (raw JSON):**
+    ```json
+    {
+      "type": "Feature",
+      "properties": { "name": "downtown-la" },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [-118.25, 34.04],
+            [-118.23, 34.04],
+            [-118.23, 34.06],
+            [-118.25, 34.06],
+            [-118.25, 34.04]
+          ]
+        ]
+      }
+    }
+    ```
