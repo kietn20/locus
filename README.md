@@ -28,3 +28,14 @@ The system consists of several independent Go services that communicate asynchro
     *   **Networking:** VPC, Security Groups
 
 ---
+
+## Features
+
+*   **Real-Time Location Ingestion:** The `location-service` subscribes to MQTT topics and persists vehicle location data to the database.
+*   **Dynamic Geofence Management:** A REST API (`api-service`) allows for creating, viewing, and deleting polygonal geofences.
+*   **Stateful Event Engine:** The `geofence-service` tracks the state of each vehicle, using PostGIS to perform efficient geospatial calculations and detect when a vehicle enters or exits a geofence.
+*   **Event-Driven Alerts:** Generates new MQTT messages on a separate topic (`locus/geofence/events`) for every detected enter/exit event.
+*   **Scalable Simulation:** The `vehicle-simulator` uses goroutines to simulate a configurable number of vehicles concurrently.
+*   **Cloud Deployed:** The entire backend stack is containerized and deployed to an AWS EC2 instance.
+
+---
