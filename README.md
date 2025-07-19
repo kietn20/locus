@@ -56,3 +56,15 @@ The system consists of several independent Go services that communicate asynchro
     ```
 6.  Create a geofence (see API Usage section).
 7.  Run the simulator: `go run ./cmd/vehicle-simulator/main.go`
+
+### Cloud Deployment (AWS)
+
+The application is deployed on an EC2 instance and managed via Docker Compose.
+1.  Set up an EC2 instance with Docker, Docker Compose, and Git installed.
+2.  Configure the security group to allow inbound traffic on ports 22 (SSH), 80 (HTTP), and 1883 (MQTT).
+3.  Clone the repository onto the instance.
+4.  Create the `.env` file on the server.
+5.  Run the backend stack: `sudo docker-compose -f docker-compose.deploy.yml up -d`
+6.  To test, run the vehicle simulator from a local machine with the `MQTT_BROKER_HOST` environment variable set to the EC2 instance's public IP.
+
+---
