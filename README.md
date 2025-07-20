@@ -11,31 +11,32 @@ The system consists of several independent Go services that communicate asynchro
 ![Architecture Diagram](https://github.com/kietn20/locus/blob/main/diagram.png)
 
 ## Demo
+
 ![Demo Image](https://github.com/kietn20/locus/blob/main/demo-img.png)
 
-Youtube Demo: [Demo](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+Youtube Demo: [LINK](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 
 ## Tech Stack
 
-*   **Language:** Go
-*   **Messaging:** MQTT (Eclipse Mosquitto Broker)
-*   **Database:** PostgreSQL with the PostGIS extension for geospatial queries.
-*   **API:** RESTful API built with the `chi` router.
-*   **Infrastructure:** Docker, Docker Compose
-*   **Cloud Provider:** Amazon Web Services (AWS)
-    *   **Compute:** EC2 (`t2.micro`)
-    *   **Networking:** VPC, Security Groups
+-   **Language:** Go
+-   **Messaging:** MQTT (Eclipse Mosquitto Broker)
+-   **Database:** PostgreSQL with the PostGIS extension for geospatial queries.
+-   **API:** RESTful API built with the `chi` router.
+-   **Infrastructure:** Docker, Docker Compose
+-   **Cloud Provider:** Amazon Web Services (AWS)
+    -   **Compute:** EC2 (`t2.micro`)
+    -   **Networking:** VPC, Security Groups
 
 ---
 
 ## Features
 
-*   **Real-Time Location Ingestion:** The `location-service` subscribes to MQTT topics and persists vehicle location data to the database.
-*   **Dynamic Geofence Management:** A REST API (`api-service`) allows for creating, viewing, and deleting polygonal geofences.
-*   **Stateful Event Engine:** The `geofence-service` tracks the state of each vehicle, using PostGIS to perform efficient geospatial calculations and detect when a vehicle enters or exits a geofence.
-*   **Event-Driven Alerts:** Generates new MQTT messages on a separate topic (`locus/geofence/events`) for every detected enter/exit event.
-*   **Scalable Simulation:** The `vehicle-simulator` uses goroutines to simulate a configurable number of vehicles concurrently.
-*   **Cloud Deployed:** The entire backend stack is containerized and deployed to an AWS EC2 instance.
+-   **Real-Time Location Ingestion:** The `location-service` subscribes to MQTT topics and persists vehicle location data to the database.
+-   **Dynamic Geofence Management:** A REST API (`api-service`) allows for creating, viewing, and deleting polygonal geofences.
+-   **Stateful Event Engine:** The `geofence-service` tracks the state of each vehicle, using PostGIS to perform efficient geospatial calculations and detect when a vehicle enters or exits a geofence.
+-   **Event-Driven Alerts:** Generates new MQTT messages on a separate topic (`locus/geofence/events`) for every detected enter/exit event.
+-   **Scalable Simulation:** The `vehicle-simulator` uses goroutines to simulate a configurable number of vehicles concurrently.
+-   **Cloud Deployed:** The entire backend stack is containerized and deployed to an AWS EC2 instance.
 
 ---
 
@@ -59,6 +60,7 @@ Youtube Demo: [Demo](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 ### Cloud Deployment (AWS)
 
 The application is deployed on an EC2 instance and managed via Docker Compose.
+
 1.  Set up an EC2 instance with Docker, Docker Compose, and Git installed.
 2.  Configure the security group to allow inbound traffic on ports 22 (SSH), 80 (HTTP), and 1883 (MQTT).
 3.  Clone the repository onto the instance.
@@ -72,30 +74,30 @@ The application is deployed on an EC2 instance and managed via Docker Compose.
 
 ### Create a Geofence
 
-*   **Endpoint:** `POST /api/v1/geofences`
-*   **Method:** `POST`
-*   **Body (raw JSON):**
+-   **Endpoint:** `POST /api/v1/geofences`
+-   **Method:** `POST`
+-   **Body (raw JSON):**
     ```json
     {
-      "type": "Feature",
-      "properties": { "name": "downtown-la" },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [
-          [
-            [-118.25, 34.04],
-            [-118.23, 34.04],
-            [-118.23, 34.06],
-            [-118.25, 34.06],
-            [-118.25, 34.04]
-          ]
-        ]
-      }
+    	"type": "Feature",
+    	"properties": { "name": "downtown-la" },
+    	"geometry": {
+    		"type": "Polygon",
+    		"coordinates": [
+    			[
+    				[-118.25, 34.04],
+    				[-118.23, 34.04],
+    				[-118.23, 34.06],
+    				[-118.25, 34.06],
+    				[-118.25, 34.04]
+    			]
+    		]
+    	}
     }
     ```
 
 ### List Geofences
 
-*   **Endpoint:** `GET /api/v1/geofences`
-*   **Method:** `GET`
-*   **Returns:** A JSON array of all geofences in the database.
+-   **Endpoint:** `GET /api/v1/geofences`
+-   **Method:** `GET`
+-   **Returns:** A JSON array of all geofences in the database.
