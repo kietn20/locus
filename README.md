@@ -14,7 +14,7 @@ The system consists of several independent Go services that communicate asynchro
 
 ![Demo Image](https://github.com/kietn20/locus/blob/main/demo-img.png)
 
-Youtube Demo: [LINK](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
+Youtube Demo: [LINK](https://www.youtube.com/watch?v=ldhcy7bkz5E)
 
 ## Tech Stack
 
