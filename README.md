@@ -8,10 +8,7 @@ Project Locus is a complete, event-driven backend system designed to track a fle
 ## Architecture Diagram
 
 The system consists of several independent Go services that communicate asynchronously via an MQTT message broker and a shared PostgreSQL database.
-
-
-
-
+![Architecture Diagram](https://github.com/kietn20/locus/blob/main/diagram.png)  
 
 
 ---
