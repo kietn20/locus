@@ -4,14 +4,16 @@
 
 Project Locus is a complete, event-driven backend system designed to track a fleet of vehicles in real-time and generate alerts when they enter or exit user-defined geographic boundaries (geofences). The system is built using a modern microservices architecture, is fully containerized with Docker, and is deployed on AWS. This project demonstrates a deep understanding of Go, concurrency, real-time messaging with MQTT, REST API design, and cloud infrastructure management.
 
----
 ## Architecture Diagram
 
 The system consists of several independent Go services that communicate asynchronously via an MQTT message broker and a shared PostgreSQL database.
-![Architecture Diagram](https://github.com/kietn20/locus/blob/main/diagram.png)  
 
+![Architecture Diagram](https://github.com/kietn20/locus/blob/main/diagram.png)
 
----
+## Demo
+![Demo Image](https://github.com/kietn20/locus/blob/main/demo-img.png)
+
+Youtube Demo: [Demo](https://www.youtube.com/watch?v=dQw4w9WgXcQ)
 
 ## Tech Stack
 
